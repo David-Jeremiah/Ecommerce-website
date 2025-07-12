@@ -34,12 +34,12 @@ A full-featured eCommerce web application built using Django. This project provi
    cd Ecommerce-website
 2. Create and activate virtual environment
 
-bash
-Copy
-Edit
-python -m venv venv
-venv\Scripts\activate  # On Windows
-source venv/bin/activate  # On Mac/Linux
+   bash
+   Copy
+   Edit
+   python -m venv venv
+   venv\Scripts\activate  # On Windows
+   source venv/bin/activate  # On Mac/Linux
 
 3. Install dependencies
 bash
