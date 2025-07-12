@@ -1,0 +1,182 @@
+{% extends 'ecom/homebase.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  body {
+    background-color: #f7f7f7;
+    font-family: 'Rockwell', sans-serif;
+  }
+  .page-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .el-wrapper {
+    width: 360px;
+    padding: 15px;
+    margin: 15px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  .el-wrapper:hover {
+    transform: scale(1.05);
+  }
+  .box-up {
+    text-align: center;
+  }
+  .img {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  .p-company {
+    display: block;
+    background-color: Black;
+    color: #fbfbfb;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .cart {
+    display: block;
+    text-align: center;
+    background: #3fcd7f;
+    padding: 10px;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+  }
+  .cart:hover {
+    background: #36b06d;
+  }
+ .slider-container {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.slider-container input[type="radio"] {
+  display: none; /* Hide radio buttons */
+}
+
+.slider-container .menu label {
+  background-color: #ddd;
+  padding: 5px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.slider-container .menu label:hover {
+  background-color: #bbb;
+}
+
+.slider-container .slide {
+  display: none;
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.slider-container input[id="slide-dot-1"]:checked ~ .slide-1,
+.slider-container input[id="slide-dot-2"]:checked ~ .slide-2,
+.slider-container input[id="slide-dot-3"]:checked ~ .slide-3,
+.slider-container input[id="slide-dot-4"]:checked ~ .slide-4 {
+  display: block;
+}
+
+.slide-1 {
+  background-image: url("{% static 'images/banner1.jpeg' %}");
+}
+
+.slide-2 {
+  background-image: url("{% static 'images/banner2.jpeg' %}");
+}
+
+.slide-3 {
+  background-image: url("{% static 'images/ecom-banner1.png' %}");
+}
+
+.slide-4 {
+  background-image: url("{% static 'images/ecom-banner3.jpg' %}");
+}
+
+.slider-container .slide {
+  background-size: cover;
+  background-position: center;
+}
+  @media (max-width: 767px) {
+  .slider-container .slide {
+    height: 250px; /* Adjust height for mobile screens */
+    background-size: cover;
+    background-position: center center;
+     }
+  }
+
+
+
+/* Tablet & Laptop Responsiveness */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .slider-container .slide {
+    height: 300px; /* Adjust height for tablets */
+    background-size: cover;
+    background-position: center center;
+    }
+  }
+</style>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="slider-container">
+      <input id="slide-dot-1" type="radio" name="slides" checked>
+        <div class="slide slide-1"><a href="/aboutus"></a></div>
+
+      <input id="slide-dot-2" type="radio" name="slides">
+        <div class="slide slide-2"></div>
+
+      <input id="slide-dot-3" type="radio" name="slides">
+        <div class="slide slide-3"></div>
+      <input id="slide-dot-4" type="radio" name="slides">
+        <div class="slide slide-4"></div>
+      <div class="menu">
+        <label for="slide-dot-1"></label>
+        <label for="slide-dot-2"></label>
+        <label for="slide-dot-3"></label>
+        <label for="slide-dot-4"></label>
+      </div>
+    </div>
+  </div>
+</div>
+{% if products %}
+<h3 style="text-align:center; color:#3E454C;">{{ word }}</h3>
+
+<div class="page-wrapper">
+  {% for p in products %}
+  <div class="el-wrapper">
+    <div class="box-up">
+      <img class="img" src="{% static p.product_image.url %}" alt="{{ p.name }}">
+      <div class="p-company">{{ p.name }}</div>
+<!--      <p>{{ p.description }}</p>-->
+    </div>
+    <a class="cart" href="{% url 'add-to-cart' p.id %}" style="background-color: #3e454c; color: white; text-decoration: none;">
+      <i class="fa fa-shopping-cart"></i> Add To Cart - ${{ p.price }}
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<h3 style="text-align:center; color:#3E454C;">No Products Found</h3>
+{% endif %}
+<script>
+    {%if messages %}
+    {%for message in messages%}
+    alert('{{message}}');
+    {%endfor%}
+    {%endif%}
+</script>
+<br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+
+{% endblock content %}

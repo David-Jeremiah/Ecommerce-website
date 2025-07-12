@@ -1,0 +1,173 @@
+{% extends 'ecom/customer_base.html' %}
+{% load static %}
+
+{% block content %}
+<head>
+    <title>Payment Page</title>
+    <link rel="stylesheet" href="{% static 'css/payment.css' %}">
+</head>
+
+<body>
+    <div class="payment-container">
+        <h2>Complete Your Payment</h2>
+        <form method="post" action="/process-payment/" id="payment-form">
+            {% csrf_token %}
+
+            <!-- Customer Info Section -->
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" value="{{ name }}" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email" value="{{ email }}" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="text" name="phone" id="phone" required>
+            </div>
+
+            <!-- Displaying the total amount from the cart -->
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" name="amount" id="amount" value="{{ total_amount }}" required readonly>
+            </div>
+
+            <!-- Payment Method Section -->
+            <div class="form-group">
+                <label for="payment_method">Payment Method:</label>
+                <select name="payment_method" id="payment_method" onchange="togglePaymentFields()" required>
+                    <option value="card">Visa/MasterCard</option>
+                    <option value="mobilemoneyuganda">MTN/Airtel</option>
+                </select>
+            </div>
+
+            <!-- Visa/MasterCard Fields -->
+            <div id="visa_fields" class="payment-method-fields">
+                <div class="form-group">
+                    <label for="card_number">Card Number:</label>
+                    <input type="text" name="card_number" id="card_number" placeholder="Enter your card number" required>
+                    <small id="card-error" class="error-message"></small>
+                </div>
+                <div class="form-group">
+                    <label for="expiry_date">Expiry Date (MM/YY):</label>
+                    <input type="text" name="expiry_date" id="expiry_date" placeholder="MM/YY" required>
+                </div>
+                <div class="form-group">
+                    <label for="cvv">CVV:</label>
+                    <input type="text" name="cvv" id="cvv" placeholder="Enter your CVV" required>
+                    <small id="cvv-error" class="error-message"></small>
+                </div>
+            </div>
+
+            <!-- Mobile Money Fields -->
+            <div id="mobile_money_fields" class="payment-method-fields" style="display:none;">
+                <div class="form-group">
+                    <label for="mobile_number">Mobile Number:</label>
+                    <input type="text" name="mobile_number" id="mobile_number" placeholder="Enter your mobile number" required>
+                    <small id="mobile-error" class="error-message"></small>
+                </div>
+                <div class="form-group">
+                    <label for="network">Network:</label>
+                    <select name="network" id="network" required>
+                        <option value="mtn">MTN</option>
+                        <option value="airtel">Airtel</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn" id="submit-btn">Pay Now</button>
+        </form>
+    </div>
+
+    <script>
+        function togglePaymentFields() {
+            const paymentMethod = document.getElementById('payment_method').value;
+            const visaFields = document.getElementById('visa_fields');
+            const mobileMoneyFields = document.getElementById('mobile_money_fields');
+
+            if (paymentMethod === 'card') {
+                visaFields.style.display = 'block';
+                mobileMoneyFields.style.display = 'none';
+            } else if (paymentMethod === 'mobilemoneyuganda') {
+                visaFields.style.display = 'none';
+                mobileMoneyFields.style.display = 'block';
+            }
+        }
+
+        // Card Validation (Visa/MasterCard)
+        function validateCardNumber(cardNumber) {
+            const regex = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|2[2-7][0-9]{14})$/; // Visa and MasterCard
+            return regex.test(cardNumber);
+        }
+
+        // CVV Validation
+        function validateCVV(cvv) {
+            return /^[0-9]{3,4}$/.test(cvv); // 3 or 4 digits for CVV
+        }
+
+        // Mobile Number Validation (MTN / Airtel)
+        function validateMobileNumber(mobileNumber) {
+            const mtnRegex = /^(\+256|256)?(70|77|78)\d{7}$/; // MTN Uganda
+            const airtelRegex = /^(\+256|256)?(75|76|78)\d{7}$/; // Airtel Uganda
+            return mtnRegex.test(mobileNumber) || airtelRegex.test(mobileNumber);
+        }
+
+        // Form Submit Handler
+        document.getElementById('payment-form').addEventListener('submit', function(event) {
+            let isValid = true;
+
+            const paymentMethod = document.getElementById('payment_method').value;
+
+            // Visa/MasterCard Validation
+            if (paymentMethod === 'card') {
+                const cardNumber = document.getElementById('card_number').value;
+                const cvv = document.getElementById('cvv').value;
+                const expiryDate = document.getElementById('expiry_date').value;
+
+                // Validate card number
+                if (!validateCardNumber(cardNumber)) {
+                    document.getElementById('card-error').textContent = 'Invalid card number';
+                    isValid = false;
+                } else {
+                    document.getElementById('card-error').textContent = '';
+                }
+
+                // Validate CVV
+                if (!validateCVV(cvv)) {
+                    document.getElementById('cvv-error').textContent = 'Invalid CVV';
+                    isValid = false;
+                } else {
+                    document.getElementById('cvv-error').textContent = '';
+                }
+
+                // Expiry Date validation
+                if (!expiryDate.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
+                    alert('Please enter a valid expiry date in MM/YY format');
+                    isValid = false;
+                }
+            }
+
+            // Mobile Money Validation
+            if (paymentMethod === 'mobilemoneyuganda') {
+                const mobileNumber = document.getElementById('mobile_number').value;
+                if (!validateMobileNumber(mobileNumber)) {
+                    document.getElementById('mobile-error').textContent = 'Invalid mobile number';
+                    isValid = false;
+                } else {
+                    document.getElementById('mobile-error').textContent = '';
+                }
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+
+        // Initialize page with Visa card fields shown
+        document.addEventListener('DOMContentLoaded', function() {
+            togglePaymentFields();
+        });
+    </script>
+</body>
+{% endblock content %}
